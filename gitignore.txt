@@ -1,0 +1,64 @@
+# Python ignore
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.venv
+venv
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Databases
+*.db
+*.sqlite3
+
+# Node.js ignore
+xai-frontend/node_modules/
+xai-frontend/dist/
+node_modules/
+
+# OS-specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# User Uploads and temporary files
+uploads/*
+!uploads/.gitkeep
+*.log
+out.txt
+*.zip
+*.rar
+*.tar.gz
+
+# IDE settings
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explainable AI Certification Tool</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Plotly.js for premium dynamic charts -->
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <!-- Custom stylesheet -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <!-- App Logic script -->
+    <script src="/static/js/app.js" defer></script>
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-shield-halved logo-icon"></i>
+                <div class="brand-text">
+                    <h1>XAI Certify</h1>
+                    <span>Responsible AI Engine</span>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-tab="audit-tab">
+                    <i class="fa-solid fa-chart-line"></i> Bias Audit
+                </a>
+                <a href="#" class="nav-item" data-tab="explain-tab">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Model XAI
+                </a>
+                <a href="#" class="nav-item" data-tab="recommendations-tab">
+                    <i class="fa-solid fa-list-check"></i> Mitigations
+                </a>
+                <a href="#" class="nav-item" data-tab="certificate-tab">
+                    <i class="fa-solid fa-award"></i> Certificate
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="theme-toggle" id="themeToggleBtn">
+                    <i class="fa-solid fa-moon"></i>
+                    <span>Dark Theme</span>
+                </div>
+                <div class="status-indicator">
+                    <span class="dot pulse"></span>
+                    <span class="status-text">Backend Connected</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Navbar -->
+            <header class="top-nav">
+                <div class="header-title">
+                    <h2>Explainable AI Certification Dashboard</h2>
+                    <p>Audit machine learning models for fairness, compliance, and explainability</p>
+                </div>
+                <div class="model-meta-badges">
+                    <div class="meta-badge" id="badgeModelType">
+                        <i class="fa-solid fa-microchip"></i>
+                        <span>Model: Not Trained</span>
+                    </div>
+                    <div class="meta-badge" id="badgeAccuracy">
+                        <i class="fa-solid fa-bullseye"></i>
+                        <span>Accuracy: --</span>
+                    </div>
+                    <div class="meta-badge" id="badgeCertLevel">
+                        <i class="fa-solid fa-medal"></i>
+                        <span>Rating: --</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Grid Layout -->
+            <div class="content-grid">
+                <!-- Left Control Panel -->
+                <section class="control-panel card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-sliders"></i> Audit Setup</h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Data Source Section -->
+                        <div class="control-group">
+                            <label class="control-label">Data Source</label>
+                            <div class="radio-toggle-group">
+                                <label class="radio-toggle">
+                                    <input type="radio" name="dataSource" value="benchmark" checked>
+                                    <span>Built-in Datasets</span>
+                                </label>
+                                <label class="radio-toggle">
+                                    <input type="radio" name="dataSource" value="custom">
+                                    <span>Custom Upload</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Built-in Dataset Select -->
+                        <div class="control-group" id="builtInGroup">
+                            <label class="control-label" for="builtInSelect">Select Dataset</label>
+                            <select id="builtInSelect" class="form-select">
+                                <option value="benchmark">Adult Census Income (Bronze Bias)</option>
+                                <option value="german_credit">German Credit Risk (Bronze/Pass Bias)</option>
+                                <option value="college_admissions">College Admissions (High Bias - Fail)</option>
+                                <option value="employee_promotion">Employee Promotion (Low Bias - Gold/Silver)</option>
+                                <option value="recidivism_risk">Recidivism Risk (High Bias - Fail)</option>
+                            </select>
+                        </div>
+
+                        <!-- File Upload (initially hidden) -->
+                        <div class="control-group hidden" id="uploadGroup">
+                            <label class="control-label">Upload CSV Dataset</label>
+                            <div class="upload-zone" id="dropZone">
+                                <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                                <p>Drag & drop or click to upload</p>
+                                <span class="file-info" id="fileInfo">No file selected</span>
+                                <input type="file" id="csvFileInput" accept=".csv" class="hidden-input">
+                            </div>
+                        </div>
+
+                        <!-- Target and Sensitive columns mapping -->
+                        <div class="control-group">
+                            <label class="control-label" for="targetSelect">Target Feature (Y)</label>
+                            <select id="targetSelect" class="form-select">
+                                <option value="Income">Income (Benchmark)</option>
+                            </select>
+                            <small class="help-text">The label predictions to audit.</small>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label" for="sensitiveSelect">Sensitive Attribute (A)</label>
+                            <select id="sensitiveSelect" class="form-select">
+                                <option value="Gender">Gender (Benchmark)</option>
+                            </select>
+                            <small class="help-text">Bias calculations will evaluate differences across this column.</small>
+                        </div>
+
+                        <!-- Model Source Section -->
+                        <div class="control-group mt-3">
+                            <label class="control-label">Model Source</label>
+                            <div class="radio-toggle-group">
+                                <label class="radio-toggle">
+                                    <input type="radio" name="modelSource" value="train" checked>
+                                    <span>Train New Model</span>
+                                </label>
+                                <label class="radio-toggle">
+                                    <input type="radio" name="modelSource" value="upload">
+                                    <span>Upload Pre-trained</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Model Selection -->
+                        <div class="control-group" id="modelTrainGroup">
+                            <label class="control-label" for="modelTypeSelect">Classifier Architecture</label>
+                            <select id="modelTypeSelect" class="form-select">
+                                <option value="random_forest">Random Forest Classifier</option>
+                                <option value="logistic_regression">Logistic Regression</option>
+                            </select>
+                        </div>
+
+                        <!-- Model Upload (initially hidden) -->
+                        <div class="control-group hidden" id="modelUploadGroup">
+                            <label class="control-label">Upload Pre-trained Model (.pkl, .joblib)</label>
+                            <div class="upload-zone" id="modelDropZone">
+                                <i class="fa-solid fa-microchip upload-icon"></i>
+                                <p>Drag & drop or click to upload</p>
+                                <span class="file-info" id="modelFileInfo">No file selected</span>
+                                <input type="file" id="modelFileInput" accept=".pkl,.joblib" class="hidden-input">
+                            </div>
+                        </div>
+
+                        <!-- Action Button -->
+                        <button id="btnTrainAudit" class="btn btn-primary btn-block">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Train & Run Audit
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Right Dashboard Panels (Tab content) -->
+                <section class="dashboard-panels">
+                    
+                    <!-- Tab 1: Bias Audit -->
+                    <div id="audit-tab" class="tab-content active">
+                        <div class="row">
+                            <!-- Compliance Gauge -->
+                            <div class="col-md-5 card gauge-card">
+                                <div class="card-header">
+                                    <h3>Ethical Compliance Level</h3>
+                                </div>
+                                <div class="card-body centered">
+                                    <div id="complianceGauge" class="plotly-chart-gauge"></div>
+                                    <div class="compliance-badge-large" id="certBadgeText">PENDING</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Overall Metrics Summary -->
+                            <div class="col-md-7 card">
+                                <div class="card-header">
+                                    <h3>Fairness Audit Scorecard</h3>
+                                </div>
+                                <div class="card-body">
+                                    <table class="scorecard-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Metric</th>
+                                                <th>Value</th>
+                                                <th>Threshold</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="metricsTableBody">
+                                            <tr>
+                                                <td colspan="4" class="text-center">Train model to generate metrics.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Metrics Charts Row -->
+                        <div class="row mt-4">
+                            <div class="col-md-6 card">
+                                <div class="card-header">
+                                    <h3>Selection Rate by Group</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div id="selectionRateChart" class="plotly-chart"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 card">
+                                <div class="card-header">
+                                    <h3>True Positive Rate (Equal Opportunity)</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div id="tprChart" class="plotly-chart"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Model Explainability -->
+                    <div id="explain-tab" class="tab-content">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h3>Global Interpretability</h3>
+                            </div>
+                            <div class="card-body">
+                                <p class="tab-description">This chart shows the global contribution of each feature to the model's overall decisions based on permutation feature importances.</p>
+                                <div id="globalImportanceChart" class="plotly-chart-global"></div>
+                            </div>
+                        </div>
+
+                        <!-- Local Explainability (Interactive LIME) -->
+                        <div class="row">
+                            <div class="col-md-6 card">
+                                <div class="card-header">
+                                    <h3>Local Instances Selector</h3>
+                                </div>
+                                <div class="card-body scroll-card">
+                                    <p class="tab-description">Select a test set instance below to examine its local decision boundaries.</p>
+                                    <div class="table-container">
+                                        <table class="instances-table" id="instancesTable">
+                                            <thead>
+                                                <!-- Dynamic headers -->
+                                                <tr id="instancesTableHeader">
+                                                    <th>Index</th>
+                                                    <th>Sensitive Val</th>
+                                                    <th>Actual Y</th>
+                                                    <th>Pred Y</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="instancesTableBody">
+                                                <tr>
+                                                    <td colspan="4" class="text-center">Train model to view instances.</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 card" id="localExplanationPanel">
+                                <div class="card-header">
+                                    <h3>Local Explanation (LIME)</h3>
+                                </div>
+                                <div class="card-body explanation-placeholder" id="localExpContent">
+                                    <div class="centered-placeholder">
+                                        <i class="fa-solid fa-arrow-left pulse-icon"></i>
+                                        <p>Click on any data row in the selector table to inspect feature contributions for that prediction.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: Recommendations -->
+                    <div id="recommendations-tab" class="tab-content">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Actionable Mitigations</h3>
+                            </div>
+                            <div class="card-body">
+                                <p class="tab-description">Based on the calculated metrics, our responsible AI engine recommends the following improvements to reduce bias and enhance interpretability.</p>
+                                <div class="recommendations-list" id="recommendationsContainer">
+                                    <div class="empty-state">
+                                        <i class="fa-solid fa-clipboard-question"></i>
+                                        <p>Train the model and run the audit to receive recommendation sheets.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 4: Certificate Report -->
+                    <div id="certificate-tab" class="tab-content">
+                        <div class="card flex-center">
+                            <div class="certificate-controls">
+                                <button class="btn btn-secondary" onclick="window.print()">
+                                    <i class="fa-solid fa-print"></i> Print Certificate
+                                </button>
+                                <button class="btn btn-primary" id="btnExportJSON">
+                                    <i class="fa-solid fa-download"></i> Export Data Report
+                                </button>
+                            </div>
+                            
+                            <!-- Gold/Silver/Bronze Certificate layout -->
+                            <div class="certificate-border" id="certificateFrame">
+                                <div class="certificate-container">
+                                    <div class="cert-header">
+                                        <i class="fa-solid fa-circle-nodes cert-logo"></i>
+                                        <h2>Responsible AI Compliance Certificate</h2>
+                                        <p>Issued by the Explainable AI Certification Engine</p>
+                                    </div>
+                                    
+                                    <div class="cert-body">
+                                        <p class="cert-intro">This document certifies that the evaluated Machine Learning Model has undergone ethical audits, including bias assessment and explanation validation.</p>
+                                        
+                                        <div class="cert-rating-box">
+                                            <span class="cert-label">COMPLIANCE RATING</span>
+                                            <div class="cert-rating-val" id="certReportLevel">PENDING</div>
+                                        </div>
+
+                                        <div class="cert-details">
+                                            <div class="cert-detail-row">
+                                                <span class="d-label">Model Architecture:</span>
+                                                <span class="d-val" id="certReportModel">--</span>
+                                            </div>
+                                            <div class="cert-detail-row">
+                                                <span class="d-label">Target Field (Y):</span>
+                                                <span class="d-val" id="certReportTarget">--</span>
+                                            </div>
+                                            <div class="cert-detail-row">
+                                                <span class="d-label">Sensitive Attribute (A):</span>
+                                                <span class="d-val" id="certReportSensitive">--</span>
+                                            </div>
+                                            <div class="cert-detail-row">
+                                                <span class="d-label">Accuracy Score:</span>
+                                                <span class="d-val" id="certReportAccuracy">--</span>
+                                            </div>
+                                            <div class="cert-detail-row">
+                                                <span class="d-label">Compliance Score:</span>
+                                                <span class="d-val" id="certReportScore">-- / 100</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="cert-footer">
+                                        <div class="cert-seal">
+                                            <i class="fa-solid fa-award seal-icon" id="certSealIcon"></i>
+                                            <span>VERIFIED ETHICAL AI</span>
+                                        </div>
+                                        <div class="cert-signatures">
+                                            <div class="signature">
+                                                <div class="sig-line"></div>
+                                                <span>Auditing Engine</span>
+                                            </div>
+                                            <div class="signature">
+                                                <div class="sig-line"></div>
+                                                <span>Compliance Officer</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Spinner Modal -->
+    <div class="loader-overlay hidden" id="loaderOverlay">
+        <div class="loader-container">
+            <div class="spinner"></div>
+            <p id="loaderMessage">Auditing ML Model...</p>
+        </div>
+    </div>
+</body>
+</html>
